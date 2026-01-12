@@ -1,6 +1,7 @@
 import Koa, { Context } from 'koa';
 import Router from '@koa/router';
 import { registerMistralRoutes } from './mistralai';
+import { registerAgentRoutes } from './agent';
 
 /**
  * 首页欢迎路由处理函数
@@ -22,6 +23,7 @@ export function registerRoutes(app: Koa): void {
     router.get('/', rootHandler);
 
     registerMistralRoutes(router);
+    registerAgentRoutes(router);
 
     app.use(router.routes());
     app.use(router.allowedMethods());
