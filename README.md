@@ -1,4 +1,4 @@
-# lang_chain_koa_v1
+# LangChainJs 学习
 
 
 # .env 配置文件
