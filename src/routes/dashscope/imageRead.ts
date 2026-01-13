@@ -162,10 +162,18 @@ export function registerDashScopeImageRoutes(router: Router): void {
 }
 
 
-// 测试入参
+// 测试接口
 // {
 //     "imageUrl": "https://dashscope.oss-cn-beijing.aliyuncs.com/images/dog_and_girl.jpeg",
 //     "question": "这张图里有什么？请用中文描述。",
+//     "model": "qwen-vl-plus",
+//     "max_tokens": 512,
+//     "temperature": 0
+// }
+
+// {
+//     "imageUrl": "http://localhost:3000/images/fe_code.jpg",
+//     "question": "提取图片的文案",
 //     "model": "qwen-vl-plus",
 //     "max_tokens": 512,
 //     "temperature": 0
