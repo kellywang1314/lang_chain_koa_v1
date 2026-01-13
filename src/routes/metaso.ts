@@ -226,6 +226,6 @@ export async function metasoSearchAgentHandler(ctx: Context): Promise<void> {
  * @param {Router} router Koa Router 实例
  * @returns {void}
  */
-export function registerAgentRoutes(router: Router): void {
-  router.post('/agent/metaso-search', metasoSearchAgentHandler);
+export function registerMetasoRoutes(router: Router): void {
+  router.post('/metaso/search', metasoSearchAgentHandler);
 }

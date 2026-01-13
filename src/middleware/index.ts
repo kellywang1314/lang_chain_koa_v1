@@ -1,5 +1,7 @@
 import Koa, { Context } from 'koa';
 import bodyParser from 'koa-bodyparser';
+import fs from 'node:fs';
+import path from 'node:path';
 
 /**
  * 创建错误处理中间件
@@ -44,6 +46,71 @@ function createRequestLoggerMiddleware(): (ctx: Context, next: () => Promise<voi
     };
 }
 
+function getContentTypeByExt(ext: string): string {
+    switch (ext.toLowerCase()) {
+        case '.jpg':
+        case '.jpeg':
+            return 'image/jpeg';
+        case '.png':
+            return 'image/png';
+        case '.webp':
+            return 'image/webp';
+        case '.gif':
+            return 'image/gif';
+        case '.svg':
+            return 'image/svg+xml';
+        case '.ico':
+            return 'image/x-icon';
+        default:
+            return 'application/octet-stream';
+    }
+}
+
+async function findFirstExistingFilePath(candidatePaths: string[]): Promise<string | null> {
+    for (const filePath of candidatePaths) {
+        try {
+            const stat = await fs.promises.stat(filePath);
+            if (stat.isFile()) return filePath;
+        } catch {
+        }
+    }
+    return null;
+}
+
+function createStaticImagesMiddleware(): (ctx: Context, next: () => Promise<void>) => Promise<void> {
+    const rootCandidates = [
+        path.join(process.cwd(), 'src', 'images'),
+        path.join(process.cwd(), 'dist', 'images'),
+        path.join(__dirname, 'images'),
+    ];
+
+    return async (ctx: Context, next: () => Promise<void>): Promise<void> => {
+        if ((ctx.method !== 'GET' && ctx.method !== 'HEAD') || !ctx.path.startsWith('/images/')) {
+            await next();
+            return;
+        }
+
+        const requestedPath = ctx.path.slice('/images/'.length);
+        const safeRelative = requestedPath.replace(/^\/+/, '');
+        if (!safeRelative || safeRelative.includes('..')) {
+            ctx.status = 400;
+            ctx.body = { message: 'Invalid image path' };
+            return;
+        }
+
+        const candidatePaths = rootCandidates.map((root) => path.join(root, safeRelative));
+        const filePath = await findFirstExistingFilePath(candidatePaths);
+        if (!filePath) {
+            await next();
+            return;
+        }
+
+        ctx.set('Content-Type', getContentTypeByExt(path.extname(filePath)));
+        ctx.set('Cache-Control', 'public, max-age=3600');
+        ctx.body = fs.createReadStream(filePath);
+    };
+}
+
 /**
  * 注册通用中间件（错误处理、请求体解析、访问日志）
  * @param {Koa} app Koa应用实例
@@ -52,6 +119,7 @@ function createRequestLoggerMiddleware(): (ctx: Context, next: () => Promise<voi
 export function registerMiddlewares(app: Koa): void {
     app.use(createErrorHandlerMiddleware());
     registerErrorEvent(app);
+    app.use(createStaticImagesMiddleware());
     app.use(bodyParser());
     app.use(createRequestLoggerMiddleware());
 }

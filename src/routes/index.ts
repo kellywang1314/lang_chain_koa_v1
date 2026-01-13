@@ -1,7 +1,7 @@
 import Koa, { Context } from 'koa';
 import Router from '@koa/router';
 import { registerMistralRoutes } from './mistralai';
-import { registerAgentRoutes } from './agent';
+import { registerMetasoRoutes } from './metaso';
 import { registerDashScopeWebSearchRoutes, registerDashScopeImageRoutes } from './dashscope';
 
 /**
@@ -31,7 +31,7 @@ export function registerRoutes(app: Koa): void {
     });
 
     registerMistralRoutes(router);
-    registerAgentRoutes(router);
+    registerMetasoRoutes(router);
     registerDashScopeImageRoutes(router);
     registerDashScopeWebSearchRoutes(router);
 

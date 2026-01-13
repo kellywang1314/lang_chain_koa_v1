@@ -26,6 +26,41 @@ function buildImageUrlFromBase64(base64: string, mimeType?: string): string {
     return `data:${mt};base64,${b64}`;
 }
 
+function isLocalhostUrl(url: URL): boolean {
+    return url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.hostname === '0.0.0.0';
+}
+
+async function fetchImageAsDataUrl(url: string): Promise<string> {
+    const res = await fetch(url);
+    const raw = await res.arrayBuffer();
+    if (!res.ok) {
+        throw Object.assign(new Error(`读取图片失败: ${res.status} ${url}`), { status: 502 });
+    }
+    const contentType = res.headers.get('content-type') ?? 'image/jpeg';
+    const base64 = Buffer.from(raw).toString('base64');
+    return buildImageUrlFromBase64(base64, contentType);
+}
+
+async function normalizeImageUrlForDashScope(ctx: Context, imageUrl: string): Promise<string> {
+    const trimmed = imageUrl.trim();
+    if (!trimmed) return trimmed;
+
+    if (trimmed.startsWith('/')) {
+        const absolute = `${ctx.origin}${trimmed}`;
+        return await fetchImageAsDataUrl(absolute);
+    }
+
+    try {
+        const url = new URL(trimmed);
+        if (isLocalhostUrl(url)) {
+            return await fetchImageAsDataUrl(url.toString());
+        }
+    } catch {
+    }
+
+    return trimmed;
+}
+
 async function callDashScopeImageRead(imageUrl: string, question: string, options: ImageReadOptions = {}): Promise<string> {
     const requestBody: any = {
         model: options.model ?? 'qwen-vl-plus',
@@ -91,7 +126,7 @@ export async function dashScopeImageReadHandler(ctx: Context): Promise<void> {
 
         let imageUrl: string | undefined;
         if (imageUrlRaw && imageUrlRaw.trim()) {
-            imageUrl = imageUrlRaw.trim();
+            imageUrl = await normalizeImageUrlForDashScope(ctx, imageUrlRaw);
         } else if (imageBase64 && imageBase64.trim()) {
             imageUrl = buildImageUrlFromBase64(imageBase64, imageMimeType);
         }
@@ -105,10 +140,16 @@ export async function dashScopeImageReadHandler(ctx: Context): Promise<void> {
             temperature,
         });
 
+        const answerLines = answer
+            .split(/\r?\n/)
+            .map((line) => line.trimEnd())
+            .filter((line) => line.trim().length > 0);
+
         setKoaJson(ctx, 200, {
             model: model ?? 'qwen-vl-plus',
             question,
             answer,
+            answerLines,
         });
     } catch (err) {
         setKoaError(ctx, err, '图片读取失败');
