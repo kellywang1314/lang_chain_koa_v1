@@ -36,6 +36,9 @@ export function getDashScopeClient(): OpenAI {
  * @param {{model?: string; temperature?: number; enableSearch?: boolean}} options 可选参数
  * @returns {ChatOpenAI} 可直接用于 createAgent 的 ChatOpenAI 实例
  */
+// - 角色 ：它是 Agent 的 主模型（Brain） 。
+// - 作用 ：负责 理解 用户问题、 决定 是否调用工具、以及最后 组织语言 回答用户。
+// - 为什么它也需要 API Key？ 因为它本质上也是调 DashScope 的 LLM（qwen-plus）来做思考和推理。
 export function createDashScopeChatModel(options: { model?: string; temperature?: number; enableSearch?: boolean } = {}): ChatOpenAI {
     const model = options.model ?? 'qwen-plus';
     const temperature = options.temperature ?? 0;

@@ -26,7 +26,8 @@ async function callDashScopeWebSearch(
     query: string,
     options: { model?: string; max_tokens?: number; temperature?: number } = {}
 ): Promise<string> {
-    const model = options.model ?? 'qwen-plus';
+    // 强制使用 qwen-turbo 以提升搜索响应速度（相比 plus/max 快很多，且足够用于提取搜索结果）
+    const model = 'qwen-turbo';
 
     const requestBody: any = {
         model,
@@ -68,7 +69,7 @@ function createDashScopeWebSearchTool(defaults: { model?: string; max_tokens?: n
             description: '使用阿里通义千问 API 进行联网搜索。当需要查询实时信息、新闻或网页内容时调用。',
             schema: z.object({
                 query: z.string().describe('搜索关键词或自然语言问题'),
-                model: z.string().optional().describe('要使用的模型名称，默认为 qwen-plus'),
+                model: z.string().optional().describe('（已内部锁定为 qwen-turbo 以优化速度）'),
                 max_tokens: z.number().optional().describe('最大生成token数'),
                 temperature: z.number().optional().describe('温度参数，控制生成随机性'),
             }),
@@ -78,6 +79,19 @@ function createDashScopeWebSearchTool(defaults: { model?: string; max_tokens?: n
 
 /**
  * DashScope网络搜索处理器
+ *
+ * 功能说明：
+ * 1. 接收前端的自然语言问题 (input)
+ * 2. 动态创建带有联网搜索能力的 Agent (zero-shot-react-description)
+ * 3. 使用通义千问模型 (qwen-plus) 进行意图理解与工具调用
+ * 4. 返回经过模型整合后的最终答案 (agentOutput)
+ *
+ * 请求体参数：
+ * - input (required): 用户问题
+ * - model (optional): 模型名称，默认 'qwen-plus'
+ * - max_tokens (optional): 最大输出长度
+ * - temperature (optional): 随机性 (0-1)
+ *
  * @param {Context} ctx Koa上下文
  * @returns {Promise<void>}
  */
@@ -95,12 +109,15 @@ export async function dashScopeWebSearchHandler(ctx: Context): Promise<void> {
             temperature,
         });
 
+        // 创建 Agent 实例
         const agent = createAgent({
+            // 大脑
             model: createDashScopeChatModel({
-                model: model ?? 'qwen-plus',
+                model: model ?? 'qwen-turbo',
                 temperature: 0,
                 enableSearch: true,
             }),
+            // 工具
             tools: [dashscopeTool],
             systemPrompt: '你是一名检索助手。优先使用工具检索最新信息，再基于工具返回结果回答。回答用中文，最多引用3个来源链接；若信息不足请明确说明。',
         });
@@ -133,7 +150,7 @@ export async function dashScopeWebSearchHandler(ctx: Context): Promise<void> {
         setKoaJson(ctx, 200, {
             query: input,
             agentOutput,
-            model: model ?? 'qwen-plus',
+            model: model ?? 'qwen-turbo',
         });
     } catch (err) {
         setKoaError(ctx, err, '代理搜索失败');
