@@ -1,3 +1,19 @@
+/* 
+用户提问 (Input)
+   ⬇️
+[Agent / LLM]  <-- System Prompt (人设: 检索助手)
+   ⬇️ 思考: "需要联网吗？Yes"
+[Tool Selection] 选中 dashscope_web_search
+   ⬇️ 生成参数: { query: "..." }
+[Tool Execution] --> 调用 DashScope API (enable_search=true)
+   ⬇️
+[Search Results] (返回搜索到的文本)
+   ⬇️
+[Agent / LLM] <-- 上下文 + 搜索结果
+   ⬇️ 总结
+最终回答 (Agent Output)
+*/
+
 import Router from '@koa/router';
 import { Context } from 'koa';
 import { createAgent, tool } from 'langchain';
@@ -165,11 +181,3 @@ export async function dashScopeWebSearchHandler(ctx: Context): Promise<void> {
 export function registerDashScopeWebSearchRoutes(router: Router): void {
     router.post('/dashscope/web-search', dashScopeWebSearchHandler);
 }
-
-// 接口测试入参
-// {
-//     "input": "搜索电视剧何以笙萧默主题曲",
-//     "model": "qwen-plus",
-//     "max_tokens": 512,
-//     "temperature": 0
-// }

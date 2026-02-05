@@ -1,9 +1,10 @@
 import Koa, { Context } from 'koa';
 import Router from '@koa/router';
-import { registerMistralRoutes } from './mistralai';
-import { registerMetasoRoutes } from './metaso';
-import { registerDashScopeWebSearchRoutes, registerDashScopeImageRoutes } from './dashscope';
-
+import { registerMistralRoutes } from './mistral/translate';
+import { registerMetasoRoutes } from './metaso/search';
+import { registerDashScopeWebSearchRoutes } from './dashscope/webSearch';
+import { registerDashScopeImageRoutes } from './dashscope/imageRead';
+import { registerDashScopeTranslateRoutes } from './dashscope/translate';
 /**
  * 首页欢迎路由处理函数
  * @param {Context} ctx Koa上下文
@@ -34,6 +35,7 @@ export function registerRoutes(app: Koa): void {
     registerMetasoRoutes(router);
     registerDashScopeImageRoutes(router);
     registerDashScopeWebSearchRoutes(router);
+    registerDashScopeTranslateRoutes(router);
 
 
 

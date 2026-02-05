@@ -18,16 +18,15 @@ export function getDashScopeApiKey(): string {
     return apiKey;
 }
 
-const dashScopeClient = new OpenAI({
-    apiKey: getDashScopeApiKey(),
-    baseURL: dashScopeBaseUrl,
-});
-
 /**
  * 获取 DashScope 的 OpenAI 兼容客户端（单例）
  * @returns {OpenAI} OpenAI SDK 客户端实例
  */
 export function getDashScopeClient(): OpenAI {
+    const dashScopeClient = new OpenAI({
+        apiKey: getDashScopeApiKey(),
+        baseURL: dashScopeBaseUrl,
+    });
     return dashScopeClient;
 }
 
