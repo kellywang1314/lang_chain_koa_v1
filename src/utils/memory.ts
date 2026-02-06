@@ -2,7 +2,10 @@ import { ChatOpenAI } from '@langchain/openai';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { AIMessage, HumanMessage, SystemMessage, type BaseMessage } from '@langchain/core/messages';
+// InMemoryChatMessageHistory 是 LangChain 框架中用于 在内存中临时存储对话历史 的最基础组件
 import { InMemoryChatMessageHistory } from '@langchain/core/chat_history';
+
+
 
 /**
  * 1. ConversationBufferMemory（最直观）
@@ -58,6 +61,10 @@ export class ConversationBufferWindowMemory {
 
     async addAiMessage(content: string): Promise<void> {
         await this.chatHistory.addMessage(new AIMessage(content));
+    }
+
+    async clear(): Promise<void> {
+        await this.chatHistory.clear();
     }
 }
 

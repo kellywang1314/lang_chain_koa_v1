@@ -5,6 +5,7 @@ import { registerMetasoRoutes } from './metaso/search';
 import { registerDashScopeWebSearchRoutes } from './dashscope/webSearch';
 import { registerDashScopeImageRoutes } from './dashscope/imageRead';
 import { registerDashScopeTranslateRoutes } from './dashscope/translate';
+import { registerDashScopeChatRoutes } from './dashscope/chat';
 /**
  * 首页欢迎路由处理函数
  * @param {Context} ctx Koa上下文
@@ -36,6 +37,7 @@ export function registerRoutes(app: Koa): void {
     registerDashScopeImageRoutes(router);
     registerDashScopeWebSearchRoutes(router);
     registerDashScopeTranslateRoutes(router);
+    registerDashScopeChatRoutes(router);
 
 
 

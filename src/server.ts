@@ -2,7 +2,6 @@ import Koa from 'koa';
 import { registerMiddlewares } from './middleware';
 import { registerRoutes } from './routes';
 import { patchArrayToReversed } from './utils/index';
-import { registerDashScopeAgentWebSocket } from './routes/dashscope/webSocket';
 patchArrayToReversed();
 /**
  * 创建并返回Koa应用实例
@@ -43,7 +42,6 @@ function startServer(listenPort: number): void {
     console.log(`Koa TS server listening on http://localhost:${listenPort}`);
   });
 
-  registerDashScopeAgentWebSocket(server);
 }
 
 startServer(port);
