@@ -11,20 +11,6 @@ function createServer(): Koa {
   const app = new Koa();
   return app;
 }
-
-/**
- * 注册通用中间件（错误处理、请求体解析、访问日志）
- * @param {Koa} app Koa应用实例
- * @returns {void}
- */
-
-/**
- * 注册基础路由
- * @param {Koa} app Koa应用实例
- * @returns {void}
- */
-
-
 // 启动流程
 const app = createServer();
 registerMiddlewares(app);
@@ -42,6 +28,26 @@ function startServer(listenPort: number): void {
     console.log(`Koa TS server listening on http://localhost:${listenPort}`);
   });
 
+  // 优雅停机逻辑
+  const gracefulShutdown = (signal: string) => {
+    console.log(`\nReceived ${signal}. Closing server...`);
+    
+    // 停止接收新请求
+    server.close(() => {
+      console.log('Http server closed.');
+      // 这里可以添加关闭数据库连接、Redis 连接等清理逻辑
+      process.exit(0);
+    });
+
+    // 如果 10秒内还没关掉，强制退出
+    setTimeout(() => {
+      console.error('Could not close connections in time, forcefully shutting down');
+      process.exit(1);
+    }, 10000);
+  };
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 }
 
 startServer(port);
