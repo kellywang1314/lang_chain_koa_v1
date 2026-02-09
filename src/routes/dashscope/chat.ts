@@ -1,8 +1,6 @@
 import Router from '@koa/router';
 import { Context } from 'koa';
-import { StringOutputParser } from '@langchain/core/output_parsers';
-import { ChatPromptTemplate } from '@langchain/core/prompts';
-import { AIMessage, HumanMessage, SystemMessage, type BaseMessage } from '@langchain/core/messages';
+import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 
 import {
     createDashScopeChatModel,
