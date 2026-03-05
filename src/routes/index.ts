@@ -7,6 +7,9 @@ import { registerDashScopeImageRoutes } from './dashscope/imageRead';
 import { registerDashScopeTranslateRoutes } from './dashscope/translate';
 import { registerDashScopeChatRoutes } from './dashscope/chat';
 import { registerDashScopeRagRoutes } from './dashscope/rag';
+import { registerQuantRoutes } from './quant';
+
+
 
 /**
  * 注册基础路由
@@ -22,6 +25,8 @@ export function registerRoutes(app: Koa): void {
     registerDashScopeTranslateRoutes(router);
     registerDashScopeChatRoutes(router);
     registerDashScopeRagRoutes(router);
+    registerQuantRoutes(router);
+
     app.use(router.routes());
     app.use(router.allowedMethods());
 }

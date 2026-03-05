@@ -1,0 +1,1 @@
+export const tushareBaseUrl = 'https://api.tushare.pro';

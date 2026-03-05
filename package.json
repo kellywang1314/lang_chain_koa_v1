@@ -24,6 +24,7 @@
     "@langchain/openai": "^1.2.1",
     "@langchain/textsplitters": "^1.0.1",
     "apache-arrow": "^21.1.0",
+    "axios": "^1.13.5",
     "dotenv": "17.2.3",
     "dotenv-cli": "^11.0.0",
     "koa": "^3.1.1",

@@ -1,0 +1,1 @@
+export { registerQuantRoutes } from './strategy';
